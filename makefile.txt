@@ -1,0 +1,99 @@
+########################################################
+CC=gcc
+CFLAGS= -g -Wall -pedantic -ansi
+EJS = p2_e1 p2_e2 p2_e3 p2_e4
+########################################################
+OBJECTSP2_E1 = p2_e1.o element_int.o stack_element.o
+OBJECTSP2_E2 = p2_e2.o element_node.o stack_element.o graph.o node.o graph_file.o
+OBJECTSP2_E3 = p2_e3.o element_node.o stack_element.o graph.o node.o graph_file.o
+OBJECTSP2_E4 = p2_e4.o stack_fp.o graph.o node.o graph_file.o element_int.o functions.o
+########################################################
+DIST_NAME = P2_Prog2_G2101_p11
+TESTER_OBJECT = ../tester/tester.o
+TEST_EXES = test_element test_stack_element
+########################################################
+HEADERS_TO_SUBMIT=*.h
+SOURCES_TO_SUBMIT=graph_file.c graph.c node.c stack_element.c stack_fp.c functions.c element_int.c element_node.c p2_e1.c p2_e2.c p2_e3.c p2_e4.c
+SUPPORT_TO_SUBMIT=*.txt Makefile
+
+.PHONY: all
+all: $(EJS)
+
+p2_e1: $(OBJECTSP2_E1)
+	$(CC) $(CFLAGS) -o p2_e1 $(OBJECTSP2_E1)
+
+p2_e1.o: p2_e1.c element.h stack_element.h
+	$(CC) $(CFLAGS) -c p2_e1.c
+
+p2_e2: $(OBJECTSP2_E2)
+	$(CC) $(CFLAGS) -o p2_e2 $(OBJECTSP2_E2)
+
+p2_e2.o: p2_e2.c element.h stack_element.h graph_file.h
+	$(CC) $(CFLAGS) -c p2_e2.c
+
+p2_e3: $(OBJECTSP2_E3)
+	$(CC) $(CFLAGS) -o p2_e3 $(OBJECTSP2_E3)
+
+p2_e3.o: p2_e3.c element.h stack_element.h graph_file.h
+	$(CC) $(CFLAGS) -c p2_e3.c
+
+p2_e4: $(OBJECTSP2_E4)
+	$(CC) $(CFLAGS) -o p2_e4 $(OBJECTSP2_E4)
+
+p2_e4.o: p2_e4.c stack_fp.h graph_file.h
+	$(CC) $(CFLAGS) -c p2_e4.c
+
+functions.o: functions.c functions.h
+	$(CC) $(CFLAGS) -c functions.c
+
+stack_element.o: stack_element.c stack_element.h
+	$(CC) $(CFLAGS) -c stack_element.c
+
+stack_fp.o: stack_fp.h stack_fp.c
+	$(CC) $(CFLAGS) -c stack_fp.c
+
+element_node.o: element_node.c element.h node.o
+	$(CC) $(CFLAGS) -c element_node.c
+
+element_int.o: element_int.c element.h
+	$(CC) $(CFLAGS) -c element_int.c
+
+graph.o: graph.c graph.h
+	$(CC) $(CFLAGS) -c graph.c
+
+graph_file.o: graph_file.c graph_file.h
+	$(CC) $(CFLSGS) -c graph_file.c
+
+node.o: node.c node.h
+	$(CC) $(CFLAGS) -c node.c
+
+# TEST tasks
+.PHONY: test_element test_stack_element
+test_element: element_int.o $(TESTER_OBJECT)
+	@$(CC) $(CFLAGS) -o test_element test_element.c element_int.o $(TESTER_OBJECT)
+	@echo ""
+	@./test_element 2> /dev/null
+
+test_stack_element: stack_element.o $(TESTER_OBJECT)
+	@$(CC) $(CFLAGS) -o test_stack_element test_stack_element.c stack_element.o element_int.o $(TESTER_OBJECT)
+	@echo ""
+	@./test_stack_element 2> /dev/null
+
+.PHONY: clear
+clear:
+	rm -rf *.o *.dSYM
+
+.PHONY: clean
+clean: clear
+	rm -rf $(DIST_NAME) $(DIST_NAME).zip $(EJS) $(TEST_EXES)
+
+.PHONY: dist
+dist:
+	@echo "Preparing for submission"
+	rm -f $(DIST_NAME).zip
+	mkdir -p $(DIST_NAME)
+	pandoc --latex-engine=xelatex --template=../../pandoc.tex -o $(DIST_NAME)/memoria.pdf memoria.md
+	cp $(HEADERS_TO_SUBMIT) $(SOURCES_TO_SUBMIT) $(SUPPORT_TO_SUBMIT) $(DIST_NAME)/
+	zip $(DIST_NAME).zip $(DIST_NAME)/*
+	rm -rf $(DIST_NAME)
+	@echo "Submission is ready"
